@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 
 namespace DeveloperSample.ClassRefactoring
 {
@@ -14,7 +15,10 @@ namespace DeveloperSample.ClassRefactoring
 
     public class SwallowFactory
     {
-        public Swallow GetSwallow(SwallowType swallowType) => new Swallow(swallowType);
+        public Swallow GetSwallow(SwallowType swallowType)
+    	{ 
+	    	return new Swallow(swallowType);
+	    }
     }
 
     public class Swallow
@@ -27,30 +31,50 @@ namespace DeveloperSample.ClassRefactoring
             Type = swallowType;
         }
 
-        public void ApplyLoad(SwallowLoad load)
+        public void ApplyLoad(SwallowLoad load, Swallow swallowObj)
         {
-            Load = load;
+	    	swallowObj.GetType().GetProperty("Load").SetValue(swallowObj, load, null);
         }
 
         public double GetAirspeedVelocity()
         {
-            if (Type == SwallowType.African && Load == SwallowLoad.None)
+        	if (Type == SwallowType.African)	
             {
-                return 22;
+                if (Load == SwallowLoad.None)
+                {
+                    return 22;
+                }
+                else if (Load == SwallowLoad.Coconut)
+                {
+                    return 18;
+                }		
+                else
+                {
+                    // invalid load value
+                    throw new InvalidOperationException();
+                }
             }
-            if (Type == SwallowType.African && Load == SwallowLoad.Coconut)
+            else if (Type == SwallowType.European)
             {
-                return 18;
+                if (Load == SwallowLoad.None)
+                {
+                    return 20;
+                }
+                else if (Load == SwallowLoad.Coconut)
+                {
+                    return 16;
+                }		
+                else
+                {
+                    // invalid load value
+                    throw new InvalidOperationException();
+                }
             }
-            if (Type == SwallowType.European && Load == SwallowLoad.None)
+            else
             {
-                return 20;
-            }
-            if (Type == SwallowType.European && Load == SwallowLoad.Coconut)
-            {
-                return 16;
-            }
-            throw new InvalidOperationException();
+                // invalid bird
+                throw new InvalidOperationException();
+            } 
         }
     }
 }
